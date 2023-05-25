@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>resources/themes/cat/dark_cat_0.ico</file>
+        <file>resources/themes/cat/dark_cat_1.ico</file>
+        <file>resources/themes/cat/dark_cat_2.ico</file>
+        <file>resources/themes/cat/dark_cat_3.ico</file>
+        <file>resources/themes/cat/dark_cat_4.ico</file>
+        <file>resources/themes/cat/light_cat_0.ico</file>
+        <file>resources/themes/cat/light_cat_1.ico</file>
+        <file>resources/themes/cat/light_cat_2.ico</file>
+        <file>resources/themes/cat/light_cat_3.ico</file>
+        <file>resources/themes/cat/light_cat_4.ico</file>
+        <file>resources/themes/parrot/dark_parrot_0.ico</file>
+        <file>resources/themes/parrot/dark_parrot_1.ico</file>
+        <file>resources/themes/parrot/dark_parrot_2.ico</file>
+        <file>resources/themes/parrot/dark_parrot_3.ico</file>
+        <file>resources/themes/parrot/dark_parrot_4.ico</file>
+        <file>resources/themes/parrot/dark_parrot_5.ico</file>
+        <file>resources/themes/parrot/dark_parrot_6.ico</file>
+        <file>resources/themes/parrot/dark_parrot_7.ico</file>
+        <file>resources/themes/parrot/dark_parrot_8.ico</file>
+        <file>resources/themes/parrot/dark_parrot_9.ico</file>
+        <file>resources/themes/parrot/light_parrot_0.ico</file>
+        <file>resources/themes/parrot/light_parrot_1.ico</file>
+        <file>resources/themes/parrot/light_parrot_2.ico</file>
+        <file>resources/themes/parrot/light_parrot_3.ico</file>
+        <file>resources/themes/parrot/light_parrot_4.ico</file>
+        <file>resources/themes/parrot/light_parrot_5.ico</file>
+        <file>resources/themes/parrot/light_parrot_6.ico</file>
+        <file>resources/themes/parrot/light_parrot_7.ico</file>
+        <file>resources/themes/parrot/light_parrot_8.ico</file>
+        <file>resources/themes/parrot/light_parrot_9.ico</file>
+    </qresource>
+</RCC>
