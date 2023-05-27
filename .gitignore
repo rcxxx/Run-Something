@@ -1,0 +1,5 @@
+qt/build-*
+qt/RunSomething/*.pro.user
+
+esp32/RunSomething/build
+esp32/.vscode/
