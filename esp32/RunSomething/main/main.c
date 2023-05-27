@@ -15,9 +15,12 @@
 #include <lwip/netdb.h>
 #include <regex.h>
 
+#include <stdio.h>
+#include "driver/ledc.h"
+
 /*--- WiFi ---*/
-#define WIFI_SSID "Xiaomi_34FB"
-#define WIFI_PASS "12345678"
+#define WIFI_SSID "HUAWEI-DFP"
+#define WIFI_PASS "dianfengpai"
 #define MAXIMUM_RETRY  5
 
 static EventGroupHandle_t s_wifi_event_group;
@@ -253,7 +256,7 @@ void tcp_client_task(void *pvParameters) {
                 char cpu_str[16];
                 char mem_str[16];
 
-                int ret = regcomp(&regex, "CPU Usage: ([0-9]+\\.[0-9]+)%  Memory Usage: ([0-9]+)%", REG_EXTENDED);
+                int ret = regcomp(&regex, "CPU Usage: ([0-9]+\\.[0-9]+)%  Memory Usage: ([0-9]+\\.[0-9]+)%", REG_EXTENDED);
                 if (ret != 0) {
                     ESP_LOGE(TCP_TAG, "Failed to compile regex");
                     continue;
@@ -276,7 +279,7 @@ void tcp_client_task(void *pvParameters) {
                 mem_str[match[2].rm_eo - match[2].rm_so] = '\0';
                 g_mem_usage = atoi(mem_str);
 
-                ESP_LOGI(TCP_TAG, "regex: CPU Usage: %.2f%%  Memory Usage: %d%%", g_cpu_usage, g_mem_usage);
+                ESP_LOGI(TCP_TAG, "CPU Usage: %.2f%%  Memory Usage: %d%%", g_cpu_usage, g_mem_usage);
             }
             
             // vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -296,6 +299,50 @@ void tcp_client_task(void *pvParameters) {
 }
 /*--- Socket ---*/
 
+/*--- PWM ---*/
+static const char *PWM_TAG = "PWM";
+
+#define LEDC_TIMER              LEDC_TIMER_0
+#define LEDC_MODE               LEDC_LOW_SPEED_MODE
+#define LEDC_OUTPUT_IO          (9) // Define the output GPIO
+#define LEDC_CHANNEL            LEDC_CHANNEL_1
+
+void pwm_task(void *arg) {
+    // Prepare and then apply the LEDC PWM timer configuration
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_MODE,
+        .timer_num        = LEDC_TIMER,
+        .duty_resolution  = LEDC_TIMER_13_BIT,
+        .freq_hz          = 5000,  // Set output frequency at 5 kHz
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+
+    // Prepare and then apply the LEDC PWM channel configuration
+    ledc_channel_config_t ledc_channel = {
+        .speed_mode     = LEDC_MODE,
+        .channel        = LEDC_CHANNEL,
+        .timer_sel      = LEDC_TIMER,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = LEDC_OUTPUT_IO,
+        .duty           = 0, // Set duty to 0%
+        .hpoint         = 0
+    };
+    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+
+    uint32_t pwm_duty = 5000;
+
+    while(1) {
+        // ESP_LOGI(PWM_TAG, "pwm_duty: %ld", pwm_duty);
+        // ESP_LOGI(PWM_TAG, "g_cpu_usage: %f", g_cpu_usage);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL, pwm_duty);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+        pwm_duty = (uint32_t)(5000 + (3190.0f * g_cpu_usage * 0.01f));
+    }
+}
+/*--- PWM ---*/
+
 void app_main(void)
 {
     //Initialize NVS
@@ -312,4 +359,6 @@ void app_main(void)
     xTaskCreate(udp_client_task, "udp_client", 4096, NULL, 5, NULL);
     
     xTaskCreate(tcp_client_task, "udp_client", 4096, NULL, 5, NULL);
+
+    xTaskCreate(pwm_task, "pwm_task", 2048, NULL, 5, NULL);
 }

@@ -1,8 +1,11 @@
 #include "runicon.h"
+#include "sys_info.h"
 
 RunIcon::RunIcon(QObject *parent) : QSystemTrayIcon(parent){
     this->setIcon(QIcon(":/res/resources/themes/cat/dark_cat_0.ico"));
     this->setToolTip("Run Something");     // 悬停描述
+
+    SysInfo::instance().init();
 
     // 创建 Socket
     // UDP_socket
@@ -69,6 +72,7 @@ RunIcon::RunIcon(QObject *parent) : QSystemTrayIcon(parent){
     timer_monitor->start();
     timer_animation->start();
 
+#ifdef Q_OS_WIN
     // 双击打开任务管理器
     QObject::connect(this, &QSystemTrayIcon::activated, this, [&](QSystemTrayIcon::ActivationReason reason){
         if (reason == QSystemTrayIcon::DoubleClick) {
@@ -81,6 +85,7 @@ RunIcon::RunIcon(QObject *parent) : QSystemTrayIcon(parent){
             delete[] wideProgram;
         }
     });
+#endif
 
     // 添加退出菜单项
     QAction *quit_action = new QAction("Exit", menu);
@@ -92,35 +97,11 @@ RunIcon::RunIcon(QObject *parent) : QSystemTrayIcon(parent){
 }
 
 double RunIcon::getCpuUsage() {
-    // 获取系统时间
-    FILETIME idle_time, kernel_time, user_time;
-    if (!GetSystemTimes(&idle_time, &kernel_time, &user_time)) {
-        return -1;
-    }
-
-    // 计算 CPU 占用率
-    static ULONGLONG last_idle_time = 0;
-    static ULONGLONG last_kernel_time = 0;
-    static ULONGLONG last_user_time = 0;
-    ULONGLONG idle_time_delta = idle_time.dwLowDateTime + ((ULONGLONG)idle_time.dwHighDateTime << 32) - last_idle_time;
-    ULONGLONG kernel_time_delta = kernel_time.dwLowDateTime + ((ULONGLONG)kernel_time.dwHighDateTime << 32) - last_kernel_time;
-    ULONGLONG user_time_delta = user_time.dwLowDateTime + ((ULONGLONG)user_time.dwHighDateTime << 32) - last_user_time;
-    last_idle_time = idle_time.dwLowDateTime + ((ULONGLONG)idle_time.dwHighDateTime << 32);
-    last_kernel_time = kernel_time.dwLowDateTime + ((ULONGLONG)kernel_time.dwHighDateTime << 32);
-    last_user_time = user_time.dwLowDateTime + ((ULONGLONG)user_time.dwHighDateTime << 32);
-
-    ULONGLONG total_time_delta = kernel_time_delta + user_time_delta;
-    return static_cast<double>(total_time_delta - idle_time_delta) / static_cast<double>(total_time_delta) * 100.0;
+    return SysInfo::instance().cpuUsageAverage();
 }
 
-unsigned long RunIcon::getMemoryUsage() {
-    MEMORYSTATUSEX mem_status;
-    mem_status.dwLength = sizeof (mem_status);
-    if (!GlobalMemoryStatusEx(&mem_status)) {
-       return 0.0;
-    }
-
-    return mem_status.dwMemoryLoad;
+double RunIcon::getMemoryUsage() {
+    return SysInfo::instance().memoryUsage();
 }
 
 void RunIcon::onSubCatActionTriggered()
@@ -156,12 +137,12 @@ void RunIcon::onSubDarkThemeActionTriggered()
 void RunIcon::onTimerMonitorTimeout()
 {
     double cpu_usage = getCpuUsage();
-    unsigned long mem_usage = getMemoryUsage();
-    QString info = QString("CPU: %1%\n内存: %2%").arg(QString::number(cpu_usage,'f',2), QString::number(mem_usage));
+    double mem_usage = getMemoryUsage();
+    QString info = QString("CPU: %1%\n内存: %2%").arg(QString::number(cpu_usage,'f',2), QString::number(mem_usage, 'f',2));
     this->setToolTip(info);     // 悬停描述
     animation_interval = 200 - (2*round(cpu_usage));
 
-    QByteArray send_msg = QString("CPU Usage: %1%  Memory Usage: %2%").arg(QString::number(cpu_usage,'f',2), QString::number(mem_usage)).toLocal8Bit();
+    QByteArray send_msg = QString("CPU Usage: %1%  Memory Usage: %2%").arg(QString::number(cpu_usage,'f',2), QString::number(mem_usage, 'f',2)).toLocal8Bit();
 
     for (QTcpSocket *socket: tcp_clients) {
         socket->write(send_msg);

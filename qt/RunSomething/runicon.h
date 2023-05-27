@@ -14,7 +14,6 @@
 #include <QTcpSocket>
 #include <QList>
 
-#include <windows.h>
 #include <cmath>
 
 enum icon_num{
@@ -37,7 +36,7 @@ public:
      * @brief 获取内存使用情况
      * @return
      */
-    unsigned long getMemoryUsage();
+    double getMemoryUsage();
 
 private slots:
     void onSubCatActionTriggered();
