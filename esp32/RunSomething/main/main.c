@@ -300,8 +300,6 @@ void tcp_client_task(void *pvParameters) {
 /*--- Socket ---*/
 
 /*--- PWM ---*/
-static const char *PWM_TAG = "PWM";
-
 #define LEDC_TIMER              LEDC_TIMER_0
 #define LEDC_MODE               LEDC_LOW_SPEED_MODE
 #define LEDC_OUTPUT_IO          (9) // Define the output GPIO
@@ -330,15 +328,13 @@ void pwm_task(void *arg) {
     };
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
 
-    uint32_t pwm_duty = 5000;
+    uint32_t pwm_duty = 3000;
 
     while(1) {
-        // ESP_LOGI(PWM_TAG, "pwm_duty: %ld", pwm_duty);
-        // ESP_LOGI(PWM_TAG, "g_cpu_usage: %f", g_cpu_usage);
         ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL, pwm_duty);
         ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL);
         vTaskDelay(500 / portTICK_PERIOD_MS);
-        pwm_duty = (uint32_t)(5000 + (3190.0f * g_cpu_usage * 0.01f));
+        pwm_duty = (uint32_t)(3000 + (6190.0f * g_cpu_usage * 0.01f));
     }
 }
 /*--- PWM ---*/

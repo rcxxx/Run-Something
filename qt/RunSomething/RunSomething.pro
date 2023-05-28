@@ -10,14 +10,13 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
-    runicon.h \ \
+    runicon.h \
     sys_info.h
 
 
 SOURCES += \
     main.cpp \
     runicon.cpp \
-     \
     sys_info.cpp
 
 windows {
