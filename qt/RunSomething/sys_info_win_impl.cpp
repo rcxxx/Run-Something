@@ -37,11 +37,11 @@ double SysInfoWinImpl::cpuUsageAverage()
 double SysInfoWinImpl::memoryUsage()
 {
     //获取内存的使用率
-    MEMORYSTATUSEX memoryStatus;
-    memoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
-    GlobalMemoryStatusEx(&memoryStatus);
-    qulonglong memoryPhysicalUsed = memoryStatus.ullTotalPhys - memoryStatus.ullAvailPhys;
+    MEMORYSTATUSEX mem_status;
+    mem_status.dwLength = sizeof(MEMORYSTATUSEX);
+    GlobalMemoryStatusEx(&mem_status);
+    qulonglong memoryPhysicalUsed = mem_status.ullTotalPhys - mem_status.ullAvailPhys;
 
-    unsigned long mem_usage = mem_status.dwMemoryLoad;
-    return (double)memoryPhysicalUsed / (double)memoryStatus.ullTotalPhys * 100.0;
+//    unsigned long mem_usage = mem_status.dwMemoryLoad;
+    return (double)memoryPhysicalUsed / (double)mem_status.ullTotalPhys * 100.0;
 }

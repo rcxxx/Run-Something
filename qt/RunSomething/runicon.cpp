@@ -1,6 +1,12 @@
 #include "runicon.h"
 #include "sys_info.h"
 
+#ifdef Q_OS_WIN
+
+#include <windows.h>
+
+#endif
+
 RunIcon::RunIcon(QObject *parent) : QSystemTrayIcon(parent){
     this->setIcon(QIcon(":/res/resources/themes/cat/dark_cat_0.ico"));
     this->setToolTip("Run Something");     // 悬停描述
